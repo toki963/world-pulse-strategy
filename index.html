@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#10171c">
+    <title>세계의 파동 — 12턴 전략 게임</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main id="app">
+      <section id="setup" class="setup-screen">
+        <div class="setup-copy">
+          <div class="eyebrow">A WORLD IN MOTION · 12 TURN STRATEGY</div>
+          <h1>세계의<br><em>파동</em></h1>
+          <p>동맹은 흔들리고, 국경은 움직입니다.<br>12턴 안에 당신의 질서를 세우세요.</p>
+          <div
+            class="setup-meta"><span>01–12 턴</span><span>8개 세력</span><span>10–20분</span></div>
+        </div>
+        <div class="setup-card">
+          <h2>새 세계 시작</h2>
+          <label for="nation-choice">운영할 세력</label>
+          <select id="nation-choice"></select>
+          <label
+            for="seed-input">세계 시드 <small>같은 시드로 같은 세계를 다시 시작할 수 있어요</small></label>
+          <div
+            class="seed-row"><input id="seed-input" type="text" maxlength="18"><button id="random-seed" class="icon-btn" aria-label="새 시드">↻</button></div>
+          <label for="goal-choice">국가 목표</label>
+          <select id="goal-choice">
+            <option value="influence">영향력 — 7개 지역을 확보</option>
+            <option value="hegemony">패권 — 군사력 1위로 2턴 유지</option>
+            <option value="diplomacy">외교 — 우호 세력과 지역 12곳 보유</option>
+            <option value="survival">생존 — 수도를 지키고 12턴 도달</option>
+          </select>
+          <button id="start-game"
+            class="primary-btn">세계에 진입 <span>→</span></button>
+          <button id="open-records"
+            class="text-btn">저장된 판 기록 <span id="record-count">0</span></button>
+          <p class="storage-note">판 기록은 이 브라우저에만 저장됩니다.</p>
+        </div>
+      </section>
+
+      <section id="game" class="game-screen hidden">
+        <header class="topbar">
+          <div class="brand-mark">W<span>·</span>P</div>
+          <div
+            class="turn-display"><span class="eyebrow">WORLD CYCLE</span><strong id="turn-label">TURN 01 <i>/ 12</i></strong><div class="turn-progress"><span id="turn-progress"></span></div></div>
+          <div class="resource-strip" id="resource-strip"></div>
+          <div
+            class="header-right"><div class="phase-chip"><span class="pulse"></span><span id="phase-label">당신의 차례</span></div><button class="header-btn" id="records-btn" title="판 기록">기록 <b id="header-record-count">0</b></button><button class="header-btn menu-btn" id="new-game-btn">새 세계</button></div>
+        </header>
+        <div class="world-layout">
+          <section class="map-wrap" aria-label="세계 지도">
+            <div class="map-toolbar">
+              <div
+                class="map-caption"><span class="eyebrow">LIVE THEATER</span><strong>국제 정세 지도</strong></div>
+              <div
+                class="map-tools"><button id="zoom-out" class="map-tool" aria-label="축소">−</button><button id="zoom-in" class="map-tool" aria-label="확대">+</button><button id="zoom-reset" class="map-tool reset-tool">전체</button></div>
+            </div>
+            <div id="map-viewport" class="map-viewport">
+              <svg id="world-map" viewBox="0 0 1000 540" role="img"
+                aria-label="지역별 소유 세력을 보여주는 세계 지도">
+                <defs>
+                  <pattern id="mapGrid" width="40" height="40"
+                    patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#25343a"
+                      stroke-width=".7" opacity=".5" />
+                  </pattern>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                <rect width="1000" height="540" fill="url(#mapGrid)" />
+                <g id="map-world">
+                  <g id="map-art"></g>
+                  <g id="map-links"></g>
+                  <g id="map-regions"></g>
+                </g>
+              </svg>
+              <div class="map-legend" id="map-legend"></div>
+              <div
+                class="map-hint">지역을 드래그해 지도를 움직이세요 · 지역 탭으로 선택</div>
+            </div>
+            <div
+              class="map-footer"><span><i class="legend-dot own-dot"></i>내 세력</span><span><i class="legend-dot neutral-dot"></i>중립</span><span><i class="legend-line"></i>전쟁 중</span><span class="map-footer-right" id="world-status">정세를 불러오는 중</span></div>
+          </section>
+          <aside class="side-panel">
+            <div
+              class="panel-tabs"><button class="panel-tab active" data-tab="command">지휘</button><button class="panel-tab" data-tab="diplomacy">외교 <i id="war-count">0</i></button><button class="panel-tab" data-tab="chronicle">연대기 <i id="log-count">0</i></button></div>
+            <div id="command-panel" class="panel-content"></div>
+            <div id="diplomacy-panel" class="panel-content hidden"></div>
+            <div id="chronicle-panel" class="panel-content hidden"></div>
+            <div
+              class="turn-action-bar"><div class="action-remaining"><span class="action-dot"></span><span id="action-status">주 행동 1회 남음</span></div><button id="end-turn" class="end-turn-btn">턴 마감 <span>→</span></button></div>
+          </aside>
+        </div>
+        <div id="toast" class="toast hidden"></div>
+      </section>
+
+      <section id="records" class="records-screen hidden">
+        <header
+          class="records-header"><button id="back-to-setup" class="back-btn">← 돌아가기</button><div><div class="eyebrow">BALANCE NOTEBOOK</div><h1>판 기록</h1></div><div class="records-actions"><button id="export-records" class="secondary-btn">JSON 내보내기 ↓</button><button id="clear-records" class="text-btn danger-text">기록 삭제</button></div></header>
+        <div id="records-summary" class="records-summary"></div>
+        <div id="records-list" class="records-list"></div>
+        <p
+          class="records-footnote">기록에는 시드, 턴별 자원·행동, 전투와 외교 결과, 사건, 승패 원인이 포함됩니다. 최근 100판까지 브라우저에 저장합니다.</p>
+      </section>
+      <div id="modal-root"></div>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
+
